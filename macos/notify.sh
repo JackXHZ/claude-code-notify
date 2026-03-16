@@ -21,11 +21,22 @@ full_message="[$project] $message"
 # Play sound (non-blocking)
 afplay /System/Library/Sounds/Glass.aiff &
 
-# Show popup, then navigate to Cursor after clicking "Got it"
+# Show popup, then navigate to the SPECIFIC Cursor window matching this project
 osascript <<EOF &
 set dialogResult to display dialog "$full_message" with title "Claude Code — $project" buttons {"Got it"} default button "Got it" giving up after 10
 if button returned of dialogResult is "Got it" then
-    tell application "Cursor" to activate
+    tell application "Cursor"
+        activate
+        set targetProject to "$project"
+        set foundWindow to false
+        repeat with w in (every window)
+            if name of w contains targetProject then
+                set index of w to 1
+                set foundWindow to true
+                exit repeat
+            end if
+        end repeat
+    end tell
 end if
 EOF
 
